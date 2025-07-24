@@ -87,6 +87,7 @@ const statuses = [
     { type: ActivityType.Playing, text: 'avec l\'encre' },
     { type: ActivityType.Watching, text: 'les réservations' },
     { type: ActivityType.Playing, text: 'à tatouer' },
+    { type: ActivityType.Custom, text: 'Réponds à vos mails' },
     { type: ActivityType.Listening, text: 'les demandes' },
     { type: ActivityType.Competing, text: 'dans l\'art du tatouage' },
     { type: ActivityType.Watching, text: 'les clients' }
