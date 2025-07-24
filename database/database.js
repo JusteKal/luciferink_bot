@@ -101,6 +101,28 @@ class Database {
                 reason TEXT,
                 timestamp BIGINT,
                 duration INT DEFAULT NULL
+            )`,
+            
+            // Configuration Instagram
+            `CREATE TABLE IF NOT EXISTS instagram_configs (
+                guild_id VARCHAR(20) PRIMARY KEY,
+                username VARCHAR(100),
+                channel_id VARCHAR(20),
+                enabled TINYINT DEFAULT 1,
+                last_post_id VARCHAR(100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )`,
+            
+            // Posts Instagram suivis
+            `CREATE TABLE IF NOT EXISTS instagram_posts (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                guild_id VARCHAR(20),
+                post_id VARCHAR(100),
+                post_url VARCHAR(500),
+                image_url VARCHAR(500),
+                caption TEXT,
+                posted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY unique_post (guild_id, post_id)
             )`
         ];
 
@@ -262,6 +284,41 @@ class Database {
     async getNextTicketNumber(guildId) {
         const result = await this.get('SELECT MAX(ticket_number) as max_num FROM tickets WHERE guild_id = ?', [guildId]);
         return (result?.max_num || 0) + 1;
+    }
+
+    // Méthodes pour Instagram
+    async setInstagramConfig(guildId, username, channelId) {
+        return await this.run(
+            'INSERT INTO instagram_configs (guild_id, username, channel_id) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE username = VALUES(username), channel_id = VALUES(channel_id), enabled = 1',
+            [guildId, username, channelId]
+        );
+    }
+
+    async getInstagramConfig(guildId) {
+        return await this.get('SELECT * FROM instagram_configs WHERE guild_id = ? AND enabled = 1', [guildId]);
+    }
+
+    async getAllInstagramConfigs() {
+        return await this.all('SELECT * FROM instagram_configs WHERE enabled = 1');
+    }
+
+    async saveInstagramPost(guildId, postId, postUrl, imageUrl, caption) {
+        return await this.run(
+            'INSERT IGNORE INTO instagram_posts (guild_id, post_id, post_url, image_url, caption) VALUES (?, ?, ?, ?, ?)',
+            [guildId, postId, postUrl, imageUrl, caption]
+        );
+    }
+
+    async updateLastPostId(guildId, postId) {
+        return await this.run(
+            'UPDATE instagram_configs SET last_post_id = ? WHERE guild_id = ?',
+            [postId, guildId]
+        );
+    }
+
+    async isPostAlreadyPosted(guildId, postId) {
+        const result = await this.get('SELECT id FROM instagram_posts WHERE guild_id = ? AND post_id = ?', [guildId, postId]);
+        return !!result;
     }
 }
 

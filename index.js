@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Database = require('./database/database');
 const cron = require('node-cron');
+const InstagramMonitor = require('./utils/instagramMonitor');
 
 // Création du client Discord avec les intents nécessaires
 const client = new Client({
@@ -20,6 +21,7 @@ const client = new Client({
 // Collections pour stocker les commandes et events
 client.commands = new Collection();
 client.db = new Database();
+client.instagramMonitor = new InstagramMonitor(client);
 
 // Chargement des commandes
 const commandsPath = path.join(__dirname, 'commands');
@@ -117,6 +119,11 @@ client.once(Events.ClientReady, async () => {
     
     // Définir le statut initial
     updateStatus();
+    
+    // Démarrer le moniteur Instagram
+    await client.instagramMonitor.start();
+    
+    console.log(`${client.user.tag} est connecté et prêt !`);
 });
 
 // Fonction pour déployer les commandes slash
@@ -147,3 +154,16 @@ async function deployCommands() {
 
 // Connexion du bot
 client.login(process.env.DISCORD_TOKEN);
+
+// Gestion de l'arrêt propre
+process.on('SIGINT', async () => {
+    console.log('\nArrêt du bot en cours...');
+    await client.instagramMonitor.stop();
+    process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+    console.log('\nArrêt du bot en cours...');
+    await client.instagramMonitor.stop();
+    process.exit(0);
+});
