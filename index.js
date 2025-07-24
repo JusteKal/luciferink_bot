@@ -82,10 +82,12 @@ cron.schedule('0 0 * * *', async () => {  // Minuit
 
 // Statuts personnalisés
 const statuses = [
+    { type: ActivityType.Playing, text: 'avec l\'encre' },
     { type: ActivityType.Watching, text: 'les réservations' },
     { type: ActivityType.Playing, text: 'à tatouer' },
     { type: ActivityType.Listening, text: 'les demandes' },
-    { type: ActivityType.Competing, text: 'dans l\'art du tatouage' }
+    { type: ActivityType.Competing, text: 'dans l\'art du tatouage' },
+    { type: ActivityType.Watching, text: 'les clients' }
 ];
 
 let currentStatusIndex = 0;
