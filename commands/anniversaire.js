@@ -121,7 +121,7 @@ module.exports = {
 
                 await interaction.reply({
                     content: message,
-                    flags: user.id !== interaction.user.id ? 64 : 0 // Ephemeral si c'est pour quelqu'un d'autre
+                    flags: 64 // Ephemeral flag
                 });
 
             } else if (subcommand === 'supprimer') {
