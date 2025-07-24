@@ -22,7 +22,8 @@ class InstagramScraper {
                     '--disable-features=VizDisplayCompositor',
                     '--disable-dev-shm-usage',
                     '--disable-web-security',
-                    '--disable-features=site-per-process'
+                    '--disable-features=site-per-process',
+                    '--lang=fr-FR'
                 ],
                 executablePath: process.env.CHROME_PATH || undefined
             });
@@ -33,10 +34,23 @@ class InstagramScraper {
             await this.page.setUserAgent(this.userAgent);
             await this.page.setViewport({ width: 1366, height: 768 });
             
+            // Forcer la langue française
+            await this.page.setExtraHTTPHeaders({
+                'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7'
+            });
+            
             // Supprimer les signatures de webdriver
             await this.page.evaluateOnNewDocument(() => {
                 Object.defineProperty(navigator, 'webdriver', {
                     get: () => undefined,
+                });
+                
+                // Forcer la langue française
+                Object.defineProperty(navigator, 'language', {
+                    get: () => 'fr-FR',
+                });
+                Object.defineProperty(navigator, 'languages', {
+                    get: () => ['fr-FR', 'fr', 'en-US', 'en'],
                 });
             });
 
