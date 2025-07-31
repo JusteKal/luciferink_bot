@@ -95,7 +95,10 @@ module.exports = {
                 )
                 .setTimestamp();
 
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ 
+                embeds: [embed], 
+                flags: user.id === interaction.user.id ? 64 : 0 // Ephemeral si c'est pour soi-même
+            });
 
         } catch (error) {
             console.error('Erreur dans la commande niveau:', error);
