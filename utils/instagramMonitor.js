@@ -131,7 +131,6 @@ class InstagramMonitor {
                     iconURL: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/64px-Instagram_icon.png',
                     url: `https://instagram.com/${username}`
                 })
-                .setDescription(post.caption ? this.truncateText(post.caption, 2000) : 'Nouveau post Instagram')
                 .setImage(post.imageUrl)
                 .setColor(0xE4405F)
                 .setTimestamp()
@@ -150,7 +149,7 @@ class InstagramMonitor {
             };
 
             await channel.send({
-                content: `🔥@insta **Nouveau post de @${username}** !`,
+                content: `🔥||<@&1397996150023393381>|| **Nouveau post de @${username}** !`,
                 embeds: [embed],
                 components: [row]
             });
