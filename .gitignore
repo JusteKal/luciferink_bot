@@ -4,4 +4,5 @@ node_modules/
 .DS_Store
 database.sqlite
 /.vscode
-.png
+off.png
+on.png
