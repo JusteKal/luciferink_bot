@@ -1,0 +1,27 @@
+name: Déploiement automatique sur VPS OVH
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Mise à jour sur le VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v3
+
+      - name: Connexion SSH et redémarrage du bot
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/luciferink_bot
+            git pull origin main
+            pm2 restart ecosystem.config.js
+
