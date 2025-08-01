@@ -3,24 +3,53 @@ const mysql = require('mysql2/promise');
 class Database {
     constructor() {
         this.connection = null;
+        this.config = {
+            host: process.env.DB_HOST || 'localhost',
+            port: process.env.DB_PORT || 3306,
+            user: process.env.DB_USER || 'root',
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_NAME || 'luciferink_bot',
+            charset: 'utf8mb4'
+        };
     }
 
     async init() {
         try {
-            this.connection = await mysql.createConnection({
-                host: process.env.DB_HOST || 'localhost',
-                port: process.env.DB_PORT || 3306,
-                user: process.env.DB_USER || 'root',
-                password: process.env.DB_PASSWORD,
-                database: process.env.DB_NAME || 'luciferink_bot',
-                charset: 'utf8mb4'
-            });
-
+            await this.connect();
             console.log('Connecté à la base de données MariaDB.');
             await this.createTables();
         } catch (error) {
             console.error('Erreur lors de la connexion à MariaDB:', error);
             throw error;
+        }
+    }
+
+    async connect() {
+        if (this.connection) {
+            try {
+                await this.connection.ping();
+                return; // Connexion déjà active
+            } catch (error) {
+                console.log('Connexion fermée, reconnexion...');
+                this.connection = null;
+            }
+        }
+
+        this.connection = await mysql.createConnection(this.config);
+    }
+
+    async ensureConnection() {
+        try {
+            if (!this.connection) {
+                await this.connect();
+                return;
+            }
+            
+            await this.connection.ping();
+        } catch (error) {
+            console.log('Reconnexion à la base de données...');
+            this.connection = null;
+            await this.connect();
         }
     }
 
@@ -133,6 +162,7 @@ class Database {
 
     async run(sql, params = []) {
         try {
+            await this.ensureConnection();
             const [result] = await this.connection.execute(sql, params);
             return {
                 insertId: result.insertId || 0,
@@ -146,6 +176,7 @@ class Database {
 
     async get(sql, params = []) {
         try {
+            await this.ensureConnection();
             const [rows] = await this.connection.execute(sql, params);
             return rows[0] || null;
         } catch (error) {
@@ -156,6 +187,7 @@ class Database {
 
     async all(sql, params = []) {
         try {
+            await this.ensureConnection();
             const [rows] = await this.connection.execute(sql, params);
             return rows;
         } catch (error) {
