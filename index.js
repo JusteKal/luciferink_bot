@@ -83,14 +83,23 @@ cron.schedule('0 0 * * *', async () => {  // Minuit
 });
 
 // Statuts personnalisés
+const createdAt = process.env.BOT_CREATED_AT;
+let daysOnline = 0;
+if (createdAt) {
+    const createdDate = new Date(createdAt);
+    const now = new Date();
+    daysOnline = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+}
+
 const statuses = [
-    { type: ActivityType.Playing, text: 'avec l\'encre' },
+    { type: ActivityType.Playing, text: "avec l'encre" },
     { type: ActivityType.Watching, text: 'les réservations' },
     { type: ActivityType.Playing, text: 'à tatouer' },
     { type: ActivityType.Custom, text: 'Réponds à vos mails' },
     { type: ActivityType.Listening, text: 'les demandes' },
-    { type: ActivityType.Competing, text: 'dans l\'art du tatouage' },
-    { type: ActivityType.Watching, text: 'les clients' }
+    { type: ActivityType.Competing, text: "dans l'art du tatouage" },
+    { type: ActivityType.Watching, text: 'les clients' },
+    { type: ActivityType.Watching, text: `En ligne depuis ${daysOnline} jour${daysOnline > 1 ? 's' : ''}` }
 ];
 
 let currentStatusIndex = 0;
@@ -125,6 +134,7 @@ client.once(Events.ClientReady, async () => {
     await client.instagramMonitor.start();
     
     console.log(`${client.user.tag} est connecté et prêt !`);
+    console.log(`Présent sur ${client.guilds.cache.size} serveur(s)`);
 });
 
 // Fonction pour déployer les commandes slash
